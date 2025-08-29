@@ -77,8 +77,8 @@ export default function BlogPost() {
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: mockPost.title,
-        text: mockPost.excerpt,
+        title: post.title,
+        text: post.excerpt,
         url: window.location.href,
       });
     } else {

@@ -3,86 +3,16 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, User, Eye, MessageSquare, Tag } from "lucide-react";
+import { getPostsByCategory, getAllCategories } from "@/lib/mockData";
 
-// Mock data for category posts
-const categoryData = {
-  "match-reports": {
-    name: "Match Reports",
-    description: "Detailed coverage of ASA matches, including analysis and highlights",
-    posts: [
-      {
-        id: 1,
-        title: "ASA Wins Championship Final Against Wydad Casablanca",
-        slug: "asa-wins-championship-final-wydad",
-        excerpt: "In a thrilling match that went into extra time, ASA secured their first championship title in over a decade with a spectacular 3-2 victory.",
-        featuredImageUrl: "https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg",
-        author: { name: "Ahmed Benali" },
-        publishedAt: "2024-01-15T10:00:00Z",
-        views: 2847,
-        commentsCount: 45,
-        tags: ["Championship", "Victory", "Wydad"]
-      },
-      {
-        id: 2,
-        title: "Derby Victory: ASA Defeats Local Rivals 2-1",
-        slug: "derby-victory-asa-defeats-rivals",
-        excerpt: "A hard-fought victory in the local derby showcases ASA's determination and skill against our traditional rivals.",
-        featuredImageUrl: "https://images.pexels.com/photos/1884574/pexels-photo-1884574.jpeg",
-        author: { name: "Sara Alami" },
-        publishedAt: "2024-01-10T16:30:00Z",
-        views: 1456,
-        commentsCount: 28,
-        tags: ["Derby", "Victory", "Local Rivals"]
-      },
-      {
-        id: 3,
-        title: "Champions League Qualifier: ASA vs Al Ahly Preview",
-        slug: "champions-league-qualifier-preview",
-        excerpt: "Everything you need to know about ASA's upcoming Champions League qualifier against Egyptian giants Al Ahly.",
-        featuredImageUrl: "https://images.pexels.com/photos/3621104/pexels-photo-3621104.jpeg",
-        author: { name: "Mohamed Tazi" },
-        publishedAt: "2024-01-08T14:20:00Z",
-        views: 1892,
-        commentsCount: 34,
-        tags: ["Champions League", "Al Ahly", "Preview"]
-      }
-    ]
-  },
-  "transfers": {
-    name: "Transfers",
-    description: "Latest news on player transfers, signings, and contract updates",
-    posts: [
-      {
-        id: 4,
-        title: "New Signing: Youssef Amrani Joins ASA",
-        slug: "new-signing-youssef-amrani",
-        excerpt: "The talented midfielder from Raja Casablanca brings experience and skill to strengthen our midfield for the upcoming season.",
-        featuredImageUrl: "https://images.pexels.com/photos/1884574/pexels-photo-1884574.jpeg",
-        author: { name: "Fatima Zahra" },
-        publishedAt: "2024-01-14T15:30:00Z",
-        views: 1249,
-        commentsCount: 23,
-        tags: ["New Signing", "Midfielder", "Raja"]
-      },
-      {
-        id: 5,
-        title: "Contract Extension: Captain Extends Stay Until 2027",
-        slug: "captain-contract-extension-2027",
-        excerpt: "Our beloved captain has committed his future to ASA with a contract extension that will keep him at the club until 2027.",
-        featuredImageUrl: "https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg",
-        author: { name: "Hassan Benjelloun" },
-        publishedAt: "2024-01-12T11:45:00Z",
-        views: 987,
-        commentsCount: 19,
-        tags: ["Contract", "Captain", "Extension"]
-      }
-    ]
-  }
-};
 
 export default function BlogCategoryPage() {
   const { slug } = useParams();
-  const category = categoryData[slug as keyof typeof categoryData];
+  
+  // Get category info and posts from mock data
+  const categories = getAllCategories();
+  const category = categories.find(cat => cat.slug === slug);
+  const posts = getPostsByCategory(slug || '');
 
   if (!category) {
     return (
@@ -129,13 +59,13 @@ export default function BlogCategoryPage() {
           </div>
         </div>
         <Badge variant="secondary" className="text-sm">
-          {category.posts.length} posts in this category
+          {posts.length} posts in this category
         </Badge>
       </div>
 
       {/* Posts Grid */}
       <div className="space-y-6">
-        {category.posts.map((post) => (
+        {posts.length > 0 ? posts.map((post) => (
           <Card key={post.id} className="overflow-hidden hover-lift">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
               <div className="relative h-48 md:h-full">
@@ -171,8 +101,8 @@ export default function BlogCategoryPage() {
                   {/* Tags */}
                   <div className="flex flex-wrap gap-2">
                     {post.tags.map((tag) => (
-                      <Badge key={tag} variant="outline" className="text-xs">
-                        {tag}
+                      <Badge key={typeof tag === 'string' ? tag : tag.slug} variant="outline" className="text-xs">
+                        {typeof tag === 'string' ? tag : tag.name}
                       </Badge>
                     ))}
                   </div>
@@ -199,7 +129,15 @@ export default function BlogCategoryPage() {
               </div>
             </div>
           </Card>
-        ))}
+        )) : (
+          <Card className="p-12 text-center">
+            <Tag className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">No posts in this category</h3>
+            <p className="text-muted-foreground">
+              There are no published posts in the {category.name} category yet.
+            </p>
+          </Card>
+        )}
       </div>
 
       {/* Load More */}

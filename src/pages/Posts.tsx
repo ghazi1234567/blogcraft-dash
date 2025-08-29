@@ -46,7 +46,16 @@ import {
   Clock,
   FileText
 } from "lucide-react";
-import { getAdminPosts, createPost, updatePost, deletePost } from "@/lib/mockData";
+import { 
+  getAdminPosts, 
+  getAdminPostById, 
+  createPost, 
+  updatePost, 
+  deletePost, 
+  duplicatePost, 
+  schedulePost, 
+  archivePost 
+} from "@/lib/mockData";
 
 const statusColors = {
   published: "bg-success/10 text-success",
@@ -118,43 +127,43 @@ export default function Posts() {
   const handlePostAction = (action: string, postId: number) => {
     console.log(`Action: ${action} on post:`, postId);
     if (action === 'edit') {
-      const post = posts.find(p => p.id === postId);
+      const post = getAdminPostById(postId);
       if (post) {
         setEditingPost({
           id: post.id,
           title: post.title,
           slug: post.slug,
-          excerpt: `Brief excerpt for ${post.title}`,
-          content: `<h2>Welcome to ${post.title}</h2><p>This is the main content of the post...</p>`,
+          excerpt: post.excerpt || `Brief excerpt for ${post.title}`,
+          content: post.content || `<h2>Welcome to ${post.title}</h2><p>This is the main content of the post...</p>`,
           status: post.status,
-          category: post.category.toLowerCase().replace(/\s+/g, '-'),
-          tags: post.tags,
-          featuredImage: "",
-          scheduledAt: post.status === 'scheduled' ? post.publishDate + 'T10:00' : "",
-          metaTitle: post.title,
-          metaDescription: `Learn about ${post.title}`,
-          metaKeywords: post.tags
+          category: post.category.slug,
+          tags: post.tags.map((tag: any) => typeof tag === 'string' ? tag : tag.name),
+          featuredImage: post.featuredImageUrl || "",
+          scheduledAt: post.scheduledAt || "",
+          metaTitle: post.metaTitle || post.title,
+          metaDescription: post.metaDescription || `Learn about ${post.title}`,
+          metaKeywords: post.tags.map((tag: any) => typeof tag === 'string' ? tag : tag.name)
         });
         setShowEditor(true);
       }
     } else if (action === 'preview') {
-      const post = posts.find(p => p.id === postId);
+      const post = getAdminPostById(postId);
       if (post) {
         // Create preview data
         const previewData = {
           id: post.id,
           title: post.title,
           slug: post.slug,
-          excerpt: `Brief excerpt for ${post.title}`,
-          content: `<h2>Welcome to ${post.title}</h2><p>This is the main content of the post...</p>`,
+          excerpt: post.excerpt || `Brief excerpt for ${post.title}`,
+          content: post.content || `<h2>Welcome to ${post.title}</h2><p>This is the main content of the post...</p>`,
           status: post.status,
-          category: post.category.toLowerCase().replace(/\s+/g, '-'),
-          tags: post.tags,
-          featuredImage: "https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg",
-          scheduledAt: post.publishDate ? post.publishDate + 'T10:00' : "",
-          metaTitle: post.title,
-          metaDescription: `Learn about ${post.title}`,
-          metaKeywords: post.tags
+          category: post.category.slug,
+          tags: post.tags.map((tag: any) => typeof tag === 'string' ? tag : tag.name),
+          featuredImage: post.featuredImageUrl || "https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg",
+          scheduledAt: post.scheduledAt || "",
+          metaTitle: post.metaTitle || post.title,
+          metaDescription: post.metaDescription || `Learn about ${post.title}`,
+          metaKeywords: post.tags.map((tag: any) => typeof tag === 'string' ? tag : tag.name)
         };
         
         // Store preview data and open in new tab
@@ -162,31 +171,19 @@ export default function Posts() {
         window.open('/blog/post/preview', '_blank');
       }
     } else if (action === 'duplicate') {
-      const post = posts.find(p => p.id === postId);
-      if (post) {
-        // Use the duplicate function from mockData
-        duplicatePost(postId);
-        setPosts(getAdminPosts());
-      }
+      duplicatePost(postId);
+      setPosts(getAdminPosts());
     } else if (action === 'schedule') {
-      const post = posts.find(p => p.id === postId);
-      if (post) {
-        // Use the schedule function from mockData
-        schedulePost(postId);
-        setPosts(getAdminPosts());
-      }
+      schedulePost(postId);
+      setPosts(getAdminPosts());
     } else if (action === 'archive') {
-      const post = posts.find(p => p.id === postId);
-      if (post) {
-        // Use the archive function from mockData
-        archivePost(postId);
-        setPosts(getAdminPosts());
-      }
+      archivePost(postId);
+      setPosts(getAdminPosts());
     } else if (action === 'delete') {
       deletePost(postId);
       setPosts(getAdminPosts());
     } else if (action === 'view') {
-      const post = posts.find(p => p.id === postId);
+      const post = getAdminPostById(postId);
       if (post && post.status === 'published') {
         // Open published post in new tab
         window.open(`/blog/post/${post.slug}`, '_blank');

@@ -70,7 +70,8 @@ let mockCategories = [
   }
 ];
 
-let mockPosts = [
+// Unified posts storage - both admin and public posts use this
+let allPosts = [
   {
     id: 1,
     title: "ASA Wins Championship Final Against Wydad Casablanca",
@@ -117,6 +118,7 @@ let mockPosts = [
     ],
     status: "published",
     publishedAt: "2024-01-15T10:00:00Z",
+    scheduledAt: null,
     updatedAt: "2024-01-15T10:00:00Z",
     views: 2847,
     commentsCount: 45,
@@ -166,305 +168,405 @@ let mockPosts = [
     ],
     status: "published",
     publishedAt: "2024-01-14T15:30:00Z",
+    scheduledAt: null,
     updatedAt: "2024-01-14T15:30:00Z",
     views: 1249,
     commentsCount: 23,
     readingTime: 3,
     metaTitle: "New Signing: Youssef Amrani Joins ASA",
     metaDescription: "The talented midfielder from Raja Casablanca brings experience and skill to strengthen our midfield."
-  }
-];
-
-// Admin posts for the admin panel
-let adminPosts = [
-  {
-    id: 1,
-    title: "ASA Wins Championship Final Against Wydad Casablanca",
-    slug: "asa-wins-championship-final-wydad",
-    author: "Ahmed Benali",
-    status: "published",
-    category: "Match Reports",
-    tags: ["Championship", "Victory", "Wydad"],
-    publishDate: "2024-01-15",
-    views: 2847,
-    comments: 45
-  },
-  {
-    id: 2,
-    title: "New Signing: Youssef Amrani Joins ASA",
-    slug: "new-signing-youssef-amrani",
-    author: "Sara Alami",
-    status: "published",
-    category: "Transfers",
-    tags: ["Transfer", "New Player"],
-    publishDate: "2024-01-14",
-    views: 1249,
-    comments: 23
   },
   {
     id: 3,
     title: "Advanced TypeScript Techniques",
     slug: "advanced-typescript-techniques",
-    author: "Mike Chen",
+    excerpt: "Learn advanced TypeScript patterns and techniques to write better, more maintainable code.",
+    content: `
+      <div class="prose prose-lg max-w-none">
+        <p>TypeScript has revolutionized the way we write JavaScript, providing type safety and better developer experience. In this comprehensive guide, we'll explore advanced TypeScript techniques that will take your coding skills to the next level.</p>
+        
+        <h2>Generic Types and Constraints</h2>
+        <p>Generics are one of TypeScript's most powerful features, allowing you to write reusable code that works with multiple types while maintaining type safety.</p>
+        
+        <h2>Conditional Types</h2>
+        <p>Conditional types enable you to create types that depend on a condition, making your type definitions more flexible and expressive.</p>
+        
+        <h2>Mapped Types</h2>
+        <p>Mapped types allow you to create new types by transforming properties of existing types, providing powerful ways to manipulate type definitions.</p>
+        
+        <h2>Template Literal Types</h2>
+        <p>Template literal types combine the power of template literals with TypeScript's type system, enabling sophisticated string manipulation at the type level.</p>
+        
+        <h2>Utility Types</h2>
+        <p>TypeScript provides many built-in utility types that help you transform and manipulate types in common ways, making your code more concise and readable.</p>
+      </div>
+    `,
+    featuredImageUrl: "https://images.pexels.com/photos/11035380/pexels-photo-11035380.jpeg",
+    author: {
+      name: "Mike Chen",
+      bio: "Senior TypeScript Developer",
+      avatar: null
+    },
+    category: {
+      name: "Programming",
+      slug: "programming"
+    },
+    tags: [
+      { name: "TypeScript", slug: "typescript" },
+      { name: "JavaScript", slug: "javascript" },
+      { name: "Programming", slug: "programming" }
+    ],
     status: "draft",
-    category: "Programming",
-    tags: ["TypeScript", "JavaScript"],
-    publishDate: null,
+    publishedAt: null,
+    scheduledAt: null,
+    updatedAt: "2024-01-13T10:00:00Z",
     views: 0,
-    comments: 0
+    commentsCount: 0,
+    readingTime: 8,
+    metaTitle: "Advanced TypeScript Techniques - Complete Guide",
+    metaDescription: "Learn advanced TypeScript patterns and techniques to write better, more maintainable code."
   },
   {
     id: 4,
     title: "Building Modern Web Apps",
     slug: "building-modern-web-apps",
-    author: "Alex Kumar",
-    status: "published", 
-    category: "Development",
-    tags: ["Web Development", "Modern", "Apps"],
-    publishDate: "2024-01-14",
+    excerpt: "A comprehensive guide to building modern web applications with the latest technologies and best practices.",
+    content: `
+      <div class="prose prose-lg max-w-none">
+        <p>Modern web development has evolved significantly over the past few years. Today's web applications are more sophisticated, performant, and user-friendly than ever before.</p>
+        
+        <h2>The Modern Web Stack</h2>
+        <p>Today's web applications typically use a combination of modern frameworks, build tools, and deployment strategies to deliver exceptional user experiences.</p>
+        
+        <h2>Frontend Frameworks</h2>
+        <p>React, Vue, and Angular continue to dominate the frontend landscape, each offering unique advantages for different types of applications.</p>
+        
+        <h2>State Management</h2>
+        <p>Managing application state effectively is crucial for building scalable web applications. Modern solutions include Redux, Zustand, and built-in framework state management.</p>
+        
+        <h2>Performance Optimization</h2>
+        <p>Performance is key to user satisfaction. Learn about code splitting, lazy loading, and other optimization techniques.</p>
+        
+        <h2>Deployment and DevOps</h2>
+        <p>Modern deployment strategies using CI/CD pipelines, containerization, and cloud platforms ensure reliable and scalable applications.</p>
+      </div>
+    `,
+    featuredImageUrl: "https://images.pexels.com/photos/11035471/pexels-photo-11035471.jpeg",
+    author: {
+      name: "Alex Kumar",
+      bio: "Full Stack Developer",
+      avatar: null
+    },
+    category: {
+      name: "Development",
+      slug: "development"
+    },
+    tags: [
+      { name: "Web Development", slug: "web-development" },
+      { name: "Modern", slug: "modern" },
+      { name: "Apps", slug: "apps" }
+    ],
+    status: "published",
+    publishedAt: "2024-01-14T09:00:00Z",
+    scheduledAt: null,
+    updatedAt: "2024-01-14T09:00:00Z",
     views: 2847,
-    comments: 45
+    commentsCount: 45,
+    readingTime: 6,
+    metaTitle: "Building Modern Web Apps - Complete Guide",
+    metaDescription: "A comprehensive guide to building modern web applications with the latest technologies and best practices."
   },
   {
     id: 5,
     title: "CSS Grid Layout Guide",
     slug: "css-grid-layout-guide",
-    author: "Emma Wilson",
+    excerpt: "Master CSS Grid Layout with this comprehensive guide covering all the essential concepts and practical examples.",
+    content: `
+      <div class="prose prose-lg max-w-none">
+        <p>CSS Grid Layout is a powerful two-dimensional layout system that has revolutionized how we create web layouts. This guide will take you from beginner to advanced Grid techniques.</p>
+        
+        <h2>Grid Basics</h2>
+        <p>Understanding the fundamental concepts of CSS Grid, including grid containers, grid items, and the grid coordinate system.</p>
+        
+        <h2>Grid Template Areas</h2>
+        <p>Learn how to create complex layouts using named grid areas, making your CSS more readable and maintainable.</p>
+        
+        <h2>Responsive Grid Layouts</h2>
+        <p>Discover how to create responsive layouts that adapt to different screen sizes using Grid's powerful features.</p>
+        
+        <h2>Grid vs Flexbox</h2>
+        <p>Understand when to use Grid versus Flexbox, and how they can work together to create sophisticated layouts.</p>
+        
+        <h2>Advanced Grid Techniques</h2>
+        <p>Explore advanced Grid features like subgrid, implicit grids, and complex alignment options.</p>
+      </div>
+    `,
+    featuredImageUrl: "https://images.pexels.com/photos/11035540/pexels-photo-11035540.jpeg",
+    author: {
+      name: "Emma Wilson",
+      bio: "CSS Specialist and UI Designer",
+      avatar: null
+    },
+    category: {
+      name: "Design",
+      slug: "design"
+    },
+    tags: [
+      { name: "CSS", slug: "css" },
+      { name: "Layout", slug: "layout" },
+      { name: "Grid", slug: "grid" }
+    ],
     status: "scheduled",
-    category: "Design",
-    tags: ["CSS", "Layout", "Grid"],
-    publishDate: "2024-01-20",
+    publishedAt: null,
+    scheduledAt: "2024-01-20T10:00:00Z",
+    updatedAt: "2024-01-13T14:00:00Z",
     views: 0,
-    comments: 0
+    commentsCount: 0,
+    readingTime: 7,
+    metaTitle: "CSS Grid Layout Guide - Master Modern CSS Layouts",
+    metaDescription: "Master CSS Grid Layout with this comprehensive guide covering all the essential concepts and practical examples."
+  },
+  {
+    id: 6,
+    title: "agareb",
+    slug: "agareb",
+    excerpt: "Brief excerpt for agareb",
+    content: "<h2>Welcome to agareb</h2><p>This is the main content of the post...</p>",
+    featuredImageUrl: "https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg",
+    author: {
+      name: "Current User",
+      bio: "Blog author",
+      avatar: null
+    },
+    category: {
+      name: "Transfers",
+      slug: "transfers"
+    },
+    tags: [],
+    status: "published",
+    publishedAt: "2025-08-28T22:00:00Z",
+    scheduledAt: null,
+    updatedAt: "2025-08-28T22:00:00Z",
+    views: 0,
+    commentsCount: 0,
+    readingTime: 1,
+    metaTitle: "agareb",
+    metaDescription: "Learn about agareb"
   }
 ];
 
-const statusColors = {
-  published: "bg-success/10 text-success",
-  draft: "bg-warning/10 text-warning",
-  scheduled: "bg-accent/10 text-accent",
-  archived: "bg-muted text-muted-foreground",
-  rejected: "bg-destructive/10 text-destructive"
+// Helper function to convert full post to admin format
+const toAdminFormat = (post: any) => ({
+  id: post.id,
+  title: post.title,
+  slug: post.slug,
+  author: post.author.name,
+  status: post.status,
+  category: post.category.name,
+  tags: post.tags.map((tag: any) => typeof tag === 'string' ? tag : tag.name),
+  publishDate: post.publishedAt ? post.publishedAt.split('T')[0] : null,
+  views: post.views,
+  comments: post.commentsCount
+});
+
+// Helper function to convert category name to proper format
+const formatCategoryName = (categorySlug: string) => {
+  const categoryMap: { [key: string]: string } = {
+    'match-reports': 'Match Reports',
+    'transfers': 'Transfers',
+    'training': 'Training',
+    'programming': 'Programming',
+    'development': 'Development',
+    'design': 'Design',
+    'youth': 'Youth Academy',
+    'infrastructure': 'Infrastructure',
+    'community': 'Community'
+  };
+  
+  return categoryMap[categorySlug] || categorySlug.replace(/[-_]/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
 };
 
-// Helper functions
+// Helper function to generate reading time
+const calculateReadingTime = (content: string) => {
+  const wordsPerMinute = 200;
+  const textContent = content.replace(/<[^>]*>/g, ''); // Remove HTML tags
+  const wordCount = textContent.split(/\s+/).length;
+  return Math.ceil(wordCount / wordsPerMinute);
+};
+
+// Public blog functions
 export const getAllPosts = () => {
-  return mockPosts.filter(post => post.status === 'published');
+  return allPosts.filter(post => post.status === 'published');
 };
 
 export const getPostBySlug = (slug: string) => {
-  return mockPosts.find(post => post.slug === slug && post.status === 'published');
+  return allPosts.find(post => post.slug === slug && post.status === 'published');
 };
 
 export const getPostsByCategory = (categorySlug: string) => {
-  return mockPosts.filter(post => 
+  return allPosts.filter(post => 
     post.status === 'published' && 
     post.category.slug === categorySlug
   );
 };
 
 export const getFeaturedPost = () => {
-  return mockPosts.find(post => post.status === 'published') || mockPosts[0];
+  const publishedPosts = allPosts.filter(post => post.status === 'published');
+  return publishedPosts.length > 0 ? publishedPosts[0] : null;
 };
 
 export const getRecentPosts = (limit: number = 4) => {
-  return mockPosts
+  return allPosts
     .filter(post => post.status === 'published')
-    .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+    .sort((a, b) => new Date(b.publishedAt || '').getTime() - new Date(a.publishedAt || '').getTime())
     .slice(0, limit);
 };
 
 // Admin functions
 export const getAdminPosts = () => {
-  return adminPosts;
+  return allPosts.map(toAdminFormat);
+};
+
+export const getAdminPostById = (id: number) => {
+  return allPosts.find(post => post.id === id);
 };
 
 export const createPost = (postData: any) => {
-  const newId = Math.max(...adminPosts.map(p => p.id), ...mockPosts.map(p => p.id)) + 1;
+  const newId = Math.max(...allPosts.map(p => p.id), 0) + 1;
   
-  // Create admin post
-  const adminPost = {
+  const newPost = {
     id: newId,
-    title: postData.title,
-    slug: postData.slug,
-    author: "Current User", // In real app, get from auth
-    status: postData.status,
-    category: postData.category?.replace('-', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) || "General",
-    tags: postData.tags,
-    publishDate: postData.status === 'published' ? new Date().toISOString().split('T')[0] : null,
+    title: postData.title || "Untitled Post",
+    slug: postData.slug || `untitled-post-${newId}`,
+    excerpt: postData.excerpt || `Brief excerpt for ${postData.title || 'Untitled Post'}`,
+    content: postData.content || `<h2>Welcome to ${postData.title || 'Untitled Post'}</h2><p>This is the main content of the post...</p>`,
+    featuredImageUrl: postData.featuredImage || "https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg",
+    author: {
+      name: "Current User",
+      bio: "Blog author",
+      avatar: null
+    },
+    category: {
+      name: formatCategoryName(postData.category || 'general'),
+      slug: postData.category || 'general'
+    },
+    tags: (postData.tags || []).map((tag: string) => ({ 
+      name: tag, 
+      slug: tag.toLowerCase().replace(/\s+/g, '-') 
+    })),
+    status: postData.status || 'draft',
+    publishedAt: postData.status === 'published' ? new Date().toISOString() : null,
+    scheduledAt: postData.scheduledAt || null,
+    updatedAt: new Date().toISOString(),
     views: 0,
-    comments: 0
+    commentsCount: 0,
+    readingTime: calculateReadingTime(postData.content || ''),
+    metaTitle: postData.metaTitle || postData.title || "Untitled Post",
+    metaDescription: postData.metaDescription || postData.excerpt || `Learn about ${postData.title || 'this topic'}`
   };
   
-  adminPosts.push(adminPost);
-  
-  // If published, also add to public posts
-  if (postData.status === 'published') {
-    const publicPost = {
-      id: newId,
-      title: postData.title,
-      slug: postData.slug,
-      excerpt: postData.excerpt || `Brief excerpt for ${postData.title}`,
-      content: postData.content || `<p>Content for ${postData.title}</p>`,
-      featuredImageUrl: postData.featuredImage || "https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg",
-      author: {
-        name: "Current User",
-        bio: "Blog author",
-        avatar: null
-      },
-      category: {
-        name: postData.category?.replace(/[-_]/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) || "General",
-        slug: postData.category || "general"
-      },
-      tags: postData.tags?.map((tag: string) => ({ name: tag, slug: tag.toLowerCase().replace(/\s+/g, '-') })) || [],
-      status: "published",
-      publishedAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      views: 0,
-      commentsCount: 0,
-      readingTime: Math.ceil((postData.content?.length || 1000) / 200),
-      metaTitle: postData.metaTitle || postData.title,
-      metaDescription: postData.metaDescription || postData.excerpt || `Learn about ${postData.title}`
-    };
-    
-    mockPosts.unshift(publicPost); // Add to beginning for latest posts
-  }
-  
-  return adminPost;
+  allPosts.unshift(newPost); // Add to beginning for latest posts
+  return toAdminFormat(newPost);
 };
 
 export const updatePost = (id: number, postData: any) => {
-  // Update admin post
-  const adminIndex = adminPosts.findIndex(p => p.id === id);
-  if (adminIndex !== -1) {
-    adminPosts[adminIndex] = {
-      ...adminPosts[adminIndex],
-      title: postData.title,
-      slug: postData.slug,
-      status: postData.status,
-      category: postData.category,
-      tags: postData.tags,
-      publishDate: postData.status === 'published' ? 
-        (adminPosts[adminIndex].publishDate || new Date().toISOString().split('T')[0]) : 
-        null
-    };
-  }
+  const index = allPosts.findIndex(p => p.id === id);
+  if (index === -1) return null;
   
-  // Update or create public post
-  const publicIndex = mockPosts.findIndex(p => p.id === id);
+  const existingPost = allPosts[index];
   
-  if (postData.status === 'published') {
-    const publicPost = {
-      id: id,
-      title: postData.title,
-      slug: postData.slug,
-      excerpt: postData.excerpt || `Brief excerpt for ${postData.title}`,
-      content: postData.content || `<p>Content for ${postData.title}</p>`,
-      featuredImageUrl: postData.featuredImage || "https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg",
-      author: {
-        name: "Current User",
-        bio: "Blog author",
-        avatar: null
-      },
-      category: {
-        name: postData.category?.replace('-', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) || "General",
-        slug: postData.category || "general"
-      },
-      tags: postData.tags?.map((tag: string) => ({ name: tag, slug: tag.toLowerCase().replace(/\s+/g, '-') })) || [],
-      status: "published",
-      publishedAt: publicIndex !== -1 ? mockPosts[publicIndex].publishedAt : new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      views: publicIndex !== -1 ? mockPosts[publicIndex].views : 0,
-      commentsCount: publicIndex !== -1 ? mockPosts[publicIndex].commentsCount : 0,
-      readingTime: Math.ceil((postData.content?.length || 1000) / 200),
-      metaTitle: postData.metaTitle || postData.title,
-      metaDescription: postData.metaDescription || postData.excerpt || `Learn about ${postData.title}`
-    };
-    
-    if (publicIndex !== -1) {
-      mockPosts[publicIndex] = publicPost;
-    } else {
-      mockPosts.unshift(publicPost);
-    }
-  } else {
-    // If not published, remove from public posts
-    if (publicIndex !== -1) {
-      mockPosts.splice(publicIndex, 1);
-    }
-  }
+  const updatedPost = {
+    ...existingPost,
+    title: postData.title || existingPost.title,
+    slug: postData.slug || existingPost.slug,
+    excerpt: postData.excerpt || existingPost.excerpt,
+    content: postData.content || existingPost.content,
+    featuredImageUrl: postData.featuredImage || existingPost.featuredImageUrl,
+    category: {
+      name: formatCategoryName(postData.category || existingPost.category.slug),
+      slug: postData.category || existingPost.category.slug
+    },
+    tags: (postData.tags || []).map((tag: string) => ({ 
+      name: tag, 
+      slug: tag.toLowerCase().replace(/\s+/g, '-') 
+    })),
+    status: postData.status || existingPost.status,
+    publishedAt: postData.status === 'published' ? 
+      (existingPost.publishedAt || new Date().toISOString()) : 
+      (postData.status === 'draft' ? null : existingPost.publishedAt),
+    scheduledAt: postData.scheduledAt || existingPost.scheduledAt,
+    updatedAt: new Date().toISOString(),
+    readingTime: calculateReadingTime(postData.content || existingPost.content),
+    metaTitle: postData.metaTitle || existingPost.metaTitle,
+    metaDescription: postData.metaDescription || existingPost.metaDescription
+  };
   
-  return adminPosts[adminIndex];
+  allPosts[index] = updatedPost;
+  return toAdminFormat(updatedPost);
 };
 
 export const deletePost = (id: number) => {
-  // Remove from admin posts
-  const adminIndex = adminPosts.findIndex(p => p.id === id);
-  if (adminIndex !== -1) {
-    adminPosts.splice(adminIndex, 1);
+  const index = allPosts.findIndex(p => p.id === id);
+  if (index !== -1) {
+    allPosts.splice(index, 1);
+    return true;
   }
-  
-  // Remove from public posts
-  const publicIndex = mockPosts.findIndex(p => p.id === id);
-  if (publicIndex !== -1) {
-    mockPosts.splice(publicIndex, 1);
-  }
+  return false;
 };
 
 export const archivePost = (id: number) => {
-  // Update admin post status
-  const adminIndex = adminPosts.findIndex(p => p.id === id);
-  if (adminIndex !== -1) {
-    adminPosts[adminIndex].status = 'archived';
-    adminPosts[adminIndex].publishDate = null;
+  const index = allPosts.findIndex(p => p.id === id);
+  if (index !== -1) {
+    allPosts[index] = {
+      ...allPosts[index],
+      status: 'archived',
+      publishedAt: null,
+      updatedAt: new Date().toISOString()
+    };
+    return toAdminFormat(allPosts[index]);
   }
-  
-  // Remove from public posts
-  const publicIndex = mockPosts.findIndex(p => p.id === id);
-  if (publicIndex !== -1) {
-    mockPosts.splice(publicIndex, 1);
-  }
-  
-  return adminPosts[adminIndex];
+  return null;
 };
 
 export const duplicatePost = (id: number) => {
-  const adminPost = adminPosts.find(p => p.id === id);
-  if (!adminPost) return null;
+  const post = allPosts.find(p => p.id === id);
+  if (!post) return null;
   
-  const newId = Math.max(...adminPosts.map(p => p.id), ...mockPosts.map(p => p.id)) + 1;
+  const newId = Math.max(...allPosts.map(p => p.id)) + 1;
   const duplicatedPost = {
-    ...adminPost,
+    ...post,
     id: newId,
-    title: `${adminPost.title} (Copy)`,
-    slug: `${adminPost.slug}-copy`,
+    title: `${post.title} (Copy)`,
+    slug: `${post.slug}-copy-${newId}`,
     status: 'draft',
-    publishDate: null,
+    publishedAt: null,
+    scheduledAt: null,
     views: 0,
-    comments: 0
+    commentsCount: 0,
+    updatedAt: new Date().toISOString()
   };
   
-  adminPosts.push(duplicatedPost);
-  return duplicatedPost;
+  allPosts.push(duplicatedPost);
+  return toAdminFormat(duplicatedPost);
 };
 
 export const schedulePost = (id: number) => {
-  const adminIndex = adminPosts.findIndex(p => p.id === id);
-  if (adminIndex !== -1) {
+  const index = allPosts.findIndex(p => p.id === id);
+  if (index !== -1) {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(10, 0, 0, 0);
     
-    adminPosts[adminIndex].status = 'scheduled';
-    adminPosts[adminIndex].publishDate = tomorrow.toISOString().split('T')[0];
+    allPosts[index] = {
+      ...allPosts[index],
+      status: 'scheduled',
+      scheduledAt: tomorrow.toISOString(),
+      publishedAt: null,
+      updatedAt: new Date().toISOString()
+    };
+    return toAdminFormat(allPosts[index]);
   }
-  
-  // Remove from public posts if it was published
-  const publicIndex = mockPosts.findIndex(p => p.id === id);
-  if (publicIndex !== -1) {
-    mockPosts.splice(publicIndex, 1);
-  }
-  
-  return adminPosts[adminIndex];
+  return null;
 };
 
 // Categories functions

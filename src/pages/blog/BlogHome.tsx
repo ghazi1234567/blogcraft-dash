@@ -6,13 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Calendar, User, Eye, MessageSquare, ArrowRight, TrendingUp } from "lucide-react";
 import { getAllPosts, getFeaturedPost, getRecentPosts } from "@/lib/mockData";
 
-const categories = [
-  { name: "Match Reports", slug: "match-reports", count: 24 },
-  { name: "Transfers", slug: "transfers", count: 18 },
-  { name: "Training", slug: "training", count: 15 },
-  { name: "Youth", slug: "youth", count: 12 },
-  { name: "Infrastructure", slug: "infrastructure", count: 8 }
-];
 
 const popularTags = [
   "Championship", "Victory", "Transfer", "Training", "Youth Academy", 
@@ -25,6 +18,14 @@ export default function BlogHome() {
   const featuredPost = getFeaturedPost();
   const recentPosts = getRecentPosts(4);
   const allPosts = getAllPosts();
+  const categories = [
+    { name: "Match Reports", slug: "match-reports", count: allPosts.filter(p => p.category.slug === "match-reports").length },
+    { name: "Transfers", slug: "transfers", count: allPosts.filter(p => p.category.slug === "transfers").length },
+    { name: "Training", slug: "training", count: allPosts.filter(p => p.category.slug === "training").length },
+    { name: "Programming", slug: "programming", count: allPosts.filter(p => p.category.slug === "programming").length },
+    { name: "Development", slug: "development", count: allPosts.filter(p => p.category.slug === "development").length },
+    { name: "Design", slug: "design", count: allPosts.filter(p => p.category.slug === "design").length }
+  ].filter(cat => cat.count > 0); // Only show categories with posts
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -165,6 +166,15 @@ export default function BlogHome() {
                           {post.excerpt}
                         </p>
                         
+                        {/* Tags */}
+                        <div className="flex flex-wrap gap-2">
+                          {post.tags.slice(0, 3).map((tag) => (
+                            <Badge key={tag.slug} variant="outline" className="text-xs">
+                              {tag.name}
+                            </Badge>
+                          ))}
+                        </div>
+                        
                         <div className="flex items-center justify-between pt-2">
                           <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                             <div className="flex items-center space-x-1">
@@ -201,11 +211,13 @@ export default function BlogHome() {
             </div>
 
             {/* Load More Button */}
-            <div className="text-center">
-              <Button variant="outline" size="lg">
-                Load More Posts
-              </Button>
-            </div>
+            {recentPosts.length > 0 && (
+              <div className="text-center">
+                <Button variant="outline" size="lg">
+                  Load More Posts
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 

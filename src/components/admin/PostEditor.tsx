@@ -130,25 +130,19 @@ export default function PostEditor({ post, onSave, onCancel }: PostEditorProps) 
       return;
     }
     
-    if (!formData.content.trim()) {
-      alert('Please enter post content');
-      return;
-    }
-    
     const postData = {
       ...formData,
       status,
       id: post?.id,
-      // Ensure we have proper values for required fields
-      excerpt: formData.excerpt || `Brief excerpt for ${formData.title}`,
-      content: formData.content || `<h2>${formData.title}</h2><p>Content for this post...</p>`,
-      category: formData.category || 'general'
+      // Generate default content if empty
+      content: formData.content.trim() || `<div class="prose prose-lg max-w-none"><h2>${formData.title}</h2><p>This is the content for ${formData.title}. Edit this post to add your actual content.</p></div>`,
+      excerpt: formData.excerpt.trim() || `Brief excerpt for ${formData.title}`,
+      category: formData.category || 'general',
+      featuredImage: formData.featuredImage || "https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg"
     };
     
     console.log('Saving post with data:', postData);
-    onSave({
-      ...postData,
-    });
+    onSave(postData);
   };
 
   const handlePreview = () => {
