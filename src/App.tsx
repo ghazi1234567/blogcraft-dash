@@ -19,6 +19,7 @@ import BlogPreview from "./pages/blog/BlogPreview";
 import CommentsManager from "./components/admin/CommentsManager";
 import Categories from "./pages/Categories";
 import Media from "./pages/Media";
+import SEO from "./pages/SEO";
 
 const queryClient = new QueryClient();
 
@@ -53,7 +54,7 @@ const App = () => (
             <Route path="categories" element={<Categories />} />
             <Route path="comments" element={<CommentsManager />} />
             <Route path="media" element={<Media />} />
-            <Route path="seo" element={<div className="p-6"><h1 className="text-2xl font-bold">SEO Management - Coming Soon</h1></div>} />
+            <Route path="seo" element={<SEO />} />
             <Route path="analytics" element={<div className="p-6"><h1 className="text-2xl font-bold">Analytics - Coming Soon</h1></div>} />
             <Route path="appearance" element={<div className="p-6"><h1 className="text-2xl font-bold">Appearance - Coming Soon</h1></div>} />
             <Route path="security" element={<div className="p-6"><h1 className="text-2xl font-bold">Security - Coming Soon</h1></div>} />
