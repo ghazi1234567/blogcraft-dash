@@ -21,6 +21,7 @@ import {
   Tag,
   Image as ImageIcon
 } from "lucide-react";
+import MediaPicker from "./MediaPicker";
 
 interface PostEditorProps {
   post?: {
@@ -73,6 +74,7 @@ export default function PostEditor({ post, onSave, onCancel }: PostEditorProps) 
   const [newTag, setNewTag] = useState("");
   const [newKeyword, setNewKeyword] = useState("");
   const [showSEO, setShowSEO] = useState(false);
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
 
   const generateSlug = (title: string) => {
     return title
@@ -143,6 +145,14 @@ export default function PostEditor({ post, onSave, onCancel }: PostEditorProps) 
     
     console.log('Saving post with data:', postData);
     onSave(postData);
+  };
+
+  const handleMediaSelect = (file: any) => {
+    setFormData({
+      ...formData,
+      featuredImage: file.url
+    });
+    setShowMediaPicker(false);
   };
 
   const handlePreview = () => {
@@ -252,10 +262,10 @@ export default function PostEditor({ post, onSave, onCancel }: PostEditorProps) 
                   <Button
                     variant="destructive"
                     size="sm"
-                    className="absolute top-2 right-2"
+                    onClick={() => setShowMediaPicker(true)}
                     onClick={() => setFormData({ ...formData, featuredImage: "" })}
                   >
-                    <X className="h-4 w-4" />
+                    Choose from Library
                   </Button>
                 </div>
               ) : (
@@ -475,6 +485,14 @@ export default function PostEditor({ post, onSave, onCancel }: PostEditorProps) 
           </Card>
         </div>
       </div>
+
+      {/* Media Picker */}
+      <MediaPicker
+        isOpen={showMediaPicker}
+        onClose={() => setShowMediaPicker(false)}
+        onSelect={handleMediaSelect}
+        allowedTypes={["image"]}
+      />
     </div>
   );
 }
