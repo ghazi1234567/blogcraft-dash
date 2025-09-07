@@ -16,46 +16,46 @@ import {
   Clock
 } from "lucide-react";
 import { useState } from "react";
-import { getPostBySlug, getRecentPosts } from "@/lib/mockData";
-
-const mockComments = [
-  {
-    id: 1,
-    authorName: "Hassan Alami",
-    authorEmail: "hassan@example.com",
-    content: "What a match! I was there and the atmosphere was incredible. Mehdi's goal will be remembered forever!",
-    createdAt: "2024-01-15T12:30:00Z",
-    status: "approved"
-  },
-  {
-    id: 2,
-    authorName: "Fatima Zahra",
-    authorEmail: "fatima@example.com", 
-    content: "So proud of our team! This victory shows that hard work and dedication pay off. Congratulations ASA!",
-    createdAt: "2024-01-15T14:15:00Z",
-    status: "approved"
-  },
-  {
-    id: 3,
-    authorName: "Mohamed Tazi",
-    authorEmail: "mohamed@example.com",
-    content: "The best match I've seen in years. Both teams played their hearts out, but ASA deserved this win.",
-    createdAt: "2024-01-15T16:45:00Z",
-    status: "approved"
-  }
-];
+import { getPostBySlug, getRecentPosts, getCommentsByPost, createComment } from "@/lib/supabase";
+import { useEffect } from "react";
 
 export default function BlogPost() {
   const { slug } = useParams();
   const [liked, setLiked] = useState(false);
+  const [post, setPost] = useState<any>(null);
+  const [relatedPosts, setRelatedPosts] = useState<any[]>([]);
+  const [comments, setComments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [commentForm, setCommentForm] = useState({
     name: "",
     email: "",
     content: ""
   });
+  const [submittingComment, setSubmittingComment] = useState(false);
 
-  const post = getPostBySlug(slug || '');
-  const relatedPosts = getRecentPosts(2);
+  useEffect(() => {
+    const loadPost = async () => {
+      if (!slug) return;
+      
+      try {
+        const [postData, related, postComments] = await Promise.all([
+          getPostBySlug(slug),
+          getRecentPosts(2),
+          slug ? getCommentsByPost(slug) : Promise.resolve([])
+        ]);
+        
+        setPost(postData);
+        setRelatedPosts(related);
+        setComments(postComments);
+      } catch (error) {
+        console.error('Error loading post:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPost();
+  }, [slug]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -67,11 +67,32 @@ export default function BlogPost() {
     });
   };
 
-  const handleCommentSubmit = (e: React.FormEvent) => {
+  const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In real app, submit to Supabase
-    console.log('Comment submitted:', commentForm);
-    setCommentForm({ name: "", email: "", content: "" });
+    
+    if (!post || !commentForm.name.trim() || !commentForm.email.trim() || !commentForm.content.trim()) {
+      return;
+    }
+
+    setSubmittingComment(true);
+    
+    try {
+      await createComment({
+        postId: post.id,
+        authorName: commentForm.name.trim(),
+        authorEmail: commentForm.email.trim(),
+        content: commentForm.content.trim()
+      });
+      
+      setCommentForm({ name: "", email: "", content: "" });
+      // Show success message
+      alert('Comment submitted successfully! It will appear after moderation.');
+    } catch (error) {
+      console.error('Error submitting comment:', error);
+      alert('Error submitting comment. Please try again.');
+    } finally {
+      setSubmittingComment(false);
+    }
   };
 
   const handleShare = () => {
@@ -86,6 +107,14 @@ export default function BlogPost() {
       navigator.clipboard.writeText(window.location.href);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-muted-foreground">Loading post...</p>
+      </div>
+    );
+  }
 
   if (!post) {
     return (
@@ -203,7 +232,7 @@ export default function BlogPost() {
       {/* Comments Section */}
       <Card className="p-6">
         <h2 className="text-2xl font-bold text-foreground mb-6">
-          Comments ({mockComments.length})
+          Comments ({comments.length})
         </h2>
 
         {/* Comment Form */}
@@ -230,12 +259,14 @@ export default function BlogPost() {
             rows={4}
             required
           />
-          <Button type="submit">Post Comment</Button>
+          <Button type="submit" disabled={submittingComment}>
+            {submittingComment ? "Submitting..." : "Post Comment"}
+          </Button>
         </form>
 
         {/* Comments List */}
         <div className="space-y-6">
-          {mockComments.map((comment) => (
+          {comments.map((comment) => (
             <div key={comment.id} className="border-b border-border pb-6 last:border-b-0">
               <div className="flex items-start space-x-3">
                 <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center flex-shrink-0">
@@ -243,9 +274,9 @@ export default function BlogPost() {
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-2">
-                    <h4 className="font-medium text-foreground">{comment.authorName}</h4>
+                    <h4 className="font-medium text-foreground">{comment.author_name}</h4>
                     <span className="text-sm text-muted-foreground">
-                      {formatDate(comment.createdAt)}
+                      {formatDate(comment.created_at)}
                     </span>
                   </div>
                   <p className="text-muted-foreground">{comment.content}</p>
@@ -253,6 +284,13 @@ export default function BlogPost() {
               </div>
             </div>
           ))}
+          
+          {comments.length === 0 && (
+            <div className="text-center py-8">
+              <MessageSquare className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground">No comments yet. Be the first to comment!</p>
+            </div>
+          )}
         </div>
       </Card>
 

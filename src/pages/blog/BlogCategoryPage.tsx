@@ -3,16 +3,45 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, User, Eye, MessageSquare, Tag } from "lucide-react";
-import { getPostsByCategory, getAllCategories } from "@/lib/mockData";
+import { getPostsByCategory, getAllCategories, getCategoryBySlug } from "@/lib/supabase";
+import { useEffect, useState } from "react";
 
 
 export default function BlogCategoryPage() {
   const { slug } = useParams();
+  const [category, setCategory] = useState<any>(null);
+  const [posts, setPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadCategoryData = async () => {
+      if (!slug) return;
+      
+      try {
+        const [categoryData, categoryPosts] = await Promise.all([
+          getCategoryBySlug(slug),
+          getPostsByCategory(slug)
+        ]);
+        
+        setCategory(categoryData);
+        setPosts(categoryPosts);
+      } catch (error) {
+        console.error('Error loading category data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCategoryData();
+  }, [slug]);
   
-  // Get category info and posts from mock data
-  const categories = getAllCategories();
-  const category = categories.find(cat => cat.slug === slug);
-  const posts = getPostsByCategory(slug || '');
+  if (loading) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-muted-foreground">Loading category...</p>
+      </div>
+    );
+  }
 
   if (!category) {
     return (

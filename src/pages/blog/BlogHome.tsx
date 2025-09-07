@@ -4,7 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, User, Eye, MessageSquare, ArrowRight, TrendingUp } from "lucide-react";
-import { getAllPosts, getFeaturedPost, getRecentPosts } from "@/lib/mockData";
+import { getAllPosts, getFeaturedPost, getRecentPosts, getAllCategories } from "@/lib/supabase";
+import { useEffect, useState } from "react";
 
 
 const popularTags = [
@@ -14,18 +15,48 @@ const popularTags = [
 
 export default function BlogHome() {
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [featuredPost, setFeaturedPost] = useState<any>(null);
+  const [recentPosts, setRecentPosts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const featuredPost = getFeaturedPost();
-  const recentPosts = getRecentPosts(4);
-  const allPosts = getAllPosts();
-  const categories = [
-    { name: "Match Reports", slug: "match-reports", count: allPosts.filter(p => p.category.slug === "match-reports").length },
-    { name: "Transfers", slug: "transfers", count: allPosts.filter(p => p.category.slug === "transfers").length },
-    { name: "Training", slug: "training", count: allPosts.filter(p => p.category.slug === "training").length },
-    { name: "Programming", slug: "programming", count: allPosts.filter(p => p.category.slug === "programming").length },
-    { name: "Development", slug: "development", count: allPosts.filter(p => p.category.slug === "development").length },
-    { name: "Design", slug: "design", count: allPosts.filter(p => p.category.slug === "design").length }
-  ].filter(cat => cat.count > 0); // Only show categories with posts
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [featured, recent, cats, allPosts] = await Promise.all([
+          getFeaturedPost(),
+          getRecentPosts(4),
+          getAllCategories(),
+          getAllPosts()
+        ]);
+        
+        setFeaturedPost(featured);
+        setRecentPosts(recent);
+        
+        // Calculate post counts for categories
+        const categoriesWithCounts = cats.map(cat => ({
+          ...cat,
+          count: allPosts.filter(p => p.category.slug === cat.slug).length
+        })).filter(cat => cat.count > 0);
+        
+        setCategories(categoriesWithCounts);
+      } catch (error) {
+        console.error('Error loading blog data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-muted-foreground">Loading blog content...</p>
+      </div>
+    );
+  }
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -37,7 +68,10 @@ export default function BlogHome() {
 
   if (!featuredPost) {
     return <div className="text-center py-12">
-      <p className="text-muted-foreground">No published posts available yet.</p>
+      <p className="text-muted-foreground">No published posts available yet. Create your first post in the admin panel!</p>
+      <a href="/admin/posts" className="mt-4 inline-block">
+        <Button>Go to Admin Panel</Button>
+      </a>
     </div>;
   }
 

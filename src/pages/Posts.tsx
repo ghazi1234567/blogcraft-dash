@@ -51,11 +51,9 @@ import {
   getAdminPostById, 
   createPost, 
   updatePost, 
-  deletePost, 
-  duplicatePost, 
-  schedulePost, 
-  archivePost 
-} from "@/lib/mockData";
+  deletePost
+} from "@/lib/supabase";
+import { useEffect } from "react";
 
 const statusColors = {
   published: "bg-success/10 text-success",
@@ -67,6 +65,7 @@ const statusColors = {
 
 export default function Posts() {
   const [posts, setPosts] = useState(getAdminPosts());
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -74,6 +73,21 @@ export default function Posts() {
   const [selectedPosts, setSelectedPosts] = useState<number[]>([]);
   const [showEditor, setShowEditor] = useState(false);
   const [editingPost, setEditingPost] = useState<any>(null);
+
+  useEffect(() => {
+    const loadPosts = async () => {
+      try {
+        const adminPosts = await getAdminPosts();
+        setPosts(adminPosts);
+      } catch (error) {
+        console.error('Error loading posts:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPosts();
+  }, []);
 
   const filteredPosts = posts.filter(post => {
     const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -125,9 +139,10 @@ export default function Posts() {
   };
 
   const handlePostAction = (action: string, postId: number) => {
+    const handlePostAction = async (action: string, postId: string) => {
     console.log(`Action: ${action} on post:`, postId);
     if (action === 'edit') {
-      const post = getAdminPostById(postId);
+      const post = await getAdminPostById(postId);
       if (post) {
         setEditingPost({
           id: post.id,
@@ -147,7 +162,7 @@ export default function Posts() {
         setShowEditor(true);
       }
     } else if (action === 'preview') {
-      const post = getAdminPostById(postId);
+      const post = await getAdminPostById(postId);
       if (post) {
         // Create preview data
         const previewData = {
@@ -170,20 +185,17 @@ export default function Posts() {
         sessionStorage.setItem('previewPost', JSON.stringify(previewData));
         window.open('/blog/post/preview', '_blank');
       }
-    } else if (action === 'duplicate') {
-      duplicatePost(postId);
-      setPosts(getAdminPosts());
-    } else if (action === 'schedule') {
-      schedulePost(postId);
-      setPosts(getAdminPosts());
-    } else if (action === 'archive') {
-      archivePost(postId);
-      setPosts(getAdminPosts());
     } else if (action === 'delete') {
-      deletePost(postId);
-      setPosts(getAdminPosts());
+      try {
+        await deletePost(postId);
+        const updatedPosts = await getAdminPosts();
+        setPosts(updatedPosts);
+      } catch (error) {
+        console.error('Error deleting post:', error);
+        alert('Error deleting post. Please try again.');
+      }
     } else if (action === 'view') {
-      const post = getAdminPostById(postId);
+      const post = await getAdminPostById(postId);
       if (post && post.status === 'published') {
         // Open published post in new tab
         window.open(`/blog/post/${post.slug}`, '_blank');
@@ -199,21 +211,27 @@ export default function Posts() {
     setShowEditor(true);
   };
 
-  const handleSavePost = (postData: any) => {
+  const handleSavePost = async (postData: any) => {
     console.log('Saving post:', postData);
     
-    if (postData.id) {
-      // Update existing post
-      updatePost(postData.id, postData);
-    } else {
-      // Create new post
-      createPost(postData);
+    try {
+      if (postData.id) {
+        // Update existing post
+        await updatePost(postData.id, postData);
+      } else {
+        // Create new post
+        await createPost(postData);
+      }
+      
+      // Refresh posts list
+      const updatedPosts = await getAdminPosts();
+      setPosts(updatedPosts);
+      setShowEditor(false);
+      setEditingPost(null);
+    } catch (error) {
+      console.error('Error saving post:', error);
+      alert('Error saving post. Please try again.');
     }
-    
-    // Refresh posts list
-    setPosts(getAdminPosts());
-    setShowEditor(false);
-    setEditingPost(null);
   };
 
   const handleCancelEdit = () => {
@@ -231,6 +249,15 @@ export default function Posts() {
       />
     );
   }
+  
+  if (loading) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-muted-foreground">Loading posts...</p>
+      </div>
+    );
+  }
+  
   return (
     <div className="space-y-6">
       {/* Header */}

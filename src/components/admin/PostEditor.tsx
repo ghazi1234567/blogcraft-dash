@@ -135,7 +135,7 @@ export default function PostEditor({ post, onSave, onCancel }: PostEditorProps) 
     const postData = {
       ...formData,
       status,
-      id: post?.id,
+      id: post?.id || undefined,
       // Generate default content if empty
       content: formData.content.trim() || `<div class="prose prose-lg max-w-none"><h2>${formData.title}</h2><p>This is the content for ${formData.title}. Edit this post to add your actual content.</p></div>`,
       excerpt: formData.excerpt.trim() || `Brief excerpt for ${formData.title}`,

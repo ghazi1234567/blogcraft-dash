@@ -5,16 +5,40 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Tag, Calendar, User, Eye, MessageSquare } from "lucide-react";
-import { getAllCategories, getPostsByCategory } from "@/lib/mockData";
+import { getAllCategories, getPostsByCategory } from "@/lib/supabase";
+import { useEffect, useState } from "react";
 
 export default function BlogCategories() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const categories = getAllCategories().map(cat => ({
-    ...cat,
-    color: "bg-primary/10 text-primary" // Default color class for display
-  }));
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const cats = await getAllCategories();
+        setCategories(cats.map(cat => ({
+          ...cat,
+          color: "bg-primary/10 text-primary" // Default color class for display
+        })));
+      } catch (error) {
+        console.error('Error loading categories:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-muted-foreground">Loading categories...</p>
+      </div>
+    );
+  }
 
   const filteredCategories = categories.filter(category =>
     category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -101,7 +125,23 @@ export default function BlogCategories() {
           </div>
           
           {(() => {
-            const categoryPosts = getPostsByCategory(selectedCategory);
+            const [categoryPosts, setCategoryPosts] = useState<any[]>([]);
+            const [loadingPosts, setLoadingPosts] = useState(false);
+            
+            useEffect(() => {
+              if (selectedCategory) {
+                setLoadingPosts(true);
+                getPostsByCategory(selectedCategory).then(posts => {
+                  setCategoryPosts(posts);
+                  setLoadingPosts(false);
+                });
+              }
+            }, [selectedCategory]);
+            
+            if (loadingPosts) {
+              return <div className="text-center py-4"><p className="text-muted-foreground">Loading posts...</p></div>;
+            }
+            
             return categoryPosts.length > 0 ? (
               <div className="grid gap-6">
                 {categoryPosts.slice(0, 3).map((post) => (
@@ -186,7 +226,7 @@ export default function BlogCategories() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
               <div className="text-3xl font-bold text-primary">
-                {categories.reduce((sum, cat) => sum + getPostsByCategory(cat.slug).length, 0)}
+                {categories.reduce((sum, cat) => sum + (cat.count || 0), 0)}
               </div>
               <div className="text-sm text-muted-foreground">Total Posts</div>
             </div>
